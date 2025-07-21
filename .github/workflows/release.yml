@@ -11,21 +11,23 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # 在作业级别也明确授予权限
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # 获取完整历史记录
         
       - name: Create ZIP archive
         run: |
           zip -r MOMB.zip modrinth.index.json overrides
           
       - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: MOMB.zip
+          artifacts: "MOMB.zip"
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
